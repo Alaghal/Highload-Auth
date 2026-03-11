@@ -11,29 +11,39 @@ import java.util.*
 class UserEntity(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    var id: UUID? = null,
+    val id: UUID,
 
     @Column(nullable = false, unique = true)
-    var email: String = "",
+    val email: String,
 
     @Column(name = "password_hash", nullable = false)
-    var passwordHash: String = "",
+    val passwordHash: String,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var role: UserRole = UserRole.USER,
+    val role: UserRole,
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var status: UserStatus = UserStatus.ACTIVE,
+    val status: UserStatus,
 
     @Column(name = "email_verified", nullable = false)
-    var emailVerified: Boolean = false,
+    val emailVerified: Boolean = false,
 
     @Column(name = "created_at", nullable = false)
-    var createdAt: Instant = Instant.EPOCH,
+    val createdAt: Instant,
 
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.EPOCH
-)
+    val updatedAt: Instant
+) {
+    protected constructor() : this(
+        id = UUID.randomUUID(),
+        email = "",
+        passwordHash = "",
+        role = UserRole.USER,
+        status = UserStatus.ACTIVE,
+        emailVerified = false,
+        createdAt = Instant.now(),
+        updatedAt = Instant.now()
+    )
+}

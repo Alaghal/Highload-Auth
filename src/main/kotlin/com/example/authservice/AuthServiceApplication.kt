@@ -1,4 +1,4 @@
-package alag.example.auth
+package com.example.authservice
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

@@ -25,3 +25,9 @@ server:
 logging:
   level:
     org.hibernate.SQL: debug
+
+app:
+  jwt:
+    secret: "very-secret-key-change-me-in-real-project-very-secret-key"
+    access-token-expiration-minutes: 15
+    refresh-token-expiration-days: 7

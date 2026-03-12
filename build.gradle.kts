@@ -10,7 +10,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -31,6 +31,15 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+	implementation("org.flywaydb:flyway-database-postgresql")
+
+
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
 
 	runtimeOnly("org.postgresql:postgresql")
 

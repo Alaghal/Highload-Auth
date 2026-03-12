@@ -32,6 +32,15 @@ dependencies {
 
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+	implementation("org.flywaydb:flyway-database-postgresql")
+
+
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+
 	runtimeOnly("org.postgresql:postgresql")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools")

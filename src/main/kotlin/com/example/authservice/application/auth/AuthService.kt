@@ -1,5 +1,6 @@
 package com.example.authservice.application.auth
 
+import com.example.authservice.api.auth.AuthController
 import com.example.authservice.api.auth.dto.AuthResponse
 import com.example.authservice.api.auth.dto.LoginRequest
 import com.example.authservice.api.auth.dto.LogoutRequest
@@ -19,6 +20,7 @@ import com.example.authservice.infrastructure.security.JwtTokenProvider
 import com.example.authservice.infrastructure.security.TokenHashService
 import com.example.authservice.infrastructure.security.TokenProvider
 import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,6 +36,10 @@ class AuthService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val tokenHashService: TokenHashService
 ) {
+
+    private companion object {
+        private val log = LoggerFactory.getLogger(AuthService::class.java)
+    }
 
     @Transactional
     fun register(request: RegisterRequest, httpRequest: HttpServletRequest): AuthResponse {
@@ -64,6 +70,8 @@ class AuthService(
         val refreshToken = tokenProvider.generateRefreshToken(savedUser)
 
         persistRefreshToken(savedUser, refreshToken, httpRequest)
+
+        log.info("User registered successfully userId={} email={}", savedUser.id, savedUser.email)
 
         return AuthResponse(
             user = savedUser.toUserShortResponse(),
@@ -100,6 +108,8 @@ class AuthService(
         val refreshToken = tokenProvider.generateRefreshToken(user)
 
         persistRefreshToken(user, refreshToken, httpRequest)
+
+        log.info("User logged in successfully userId={}", user.id)
 
         return AuthResponse(
             user = user.toUserShortResponse(),
@@ -156,6 +166,8 @@ class AuthService(
 
         persistRefreshToken(user, newRefreshToken, httpRequest)
 
+        log.info("Refresh token rotated for userId={}", user.id)
+
         return AuthResponse(
             user = user.toUserShortResponse(),
             accessToken = newAccessToken,
@@ -182,6 +194,8 @@ class AuthService(
 
         tokens.forEach { it.revoked = true }
         refreshTokenRepository.saveAll(tokens)
+
+        log.info("User logged out from all sessions userId={} revokedTokens={}", userId, tokens.size)
 
         return MessageResponse("Logged out from all sessions")
     }

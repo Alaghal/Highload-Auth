@@ -27,6 +27,7 @@ class JwtTokenProvider(
         val expiresAt = now.plus(jwtProperties.accessTokenExpirationMinutes, ChronoUnit.MINUTES)
 
         return Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .subject(user.id.toString())
             .claim("email", user.email)
             .claim("role", user.role.name)
@@ -42,6 +43,7 @@ class JwtTokenProvider(
         val expiresAt = now.plus(jwtProperties.refreshTokenExpirationDays, ChronoUnit.DAYS)
 
         return Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .subject(user.id.toString())
             .claim("type", "refresh")
             .issuedAt(Date.from(now))

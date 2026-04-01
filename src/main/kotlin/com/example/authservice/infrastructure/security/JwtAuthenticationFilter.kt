@@ -32,6 +32,11 @@ class JwtAuthenticationFilter(
             return
         }
 
+        if (jwtTokenProvider.extractType(token) != "access") {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         val userId = jwtTokenProvider.extractUserId(token)
         val email = jwtTokenProvider.extractEmail(token) ?: ""
         val role = jwtTokenProvider.extractRole(token) ?: "USER"

@@ -72,13 +72,16 @@ class GlobalExceptionHandler {
         ex: Exception,
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
+        val log = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+        log.error("Unexpected error occurred at {}: {}", request.requestURI, ex.message, ex)
+        
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
             ErrorResponse(
                 timestamp = Instant.now(),
                 status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
                 code = "INTERNAL_ERROR",
-                message = "Unexpected internal error",
+                message = "Unexpected internal error: ${ex.message}",
                 path = request.requestURI
             )
         )

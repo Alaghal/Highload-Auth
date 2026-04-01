@@ -9,8 +9,8 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 
 @Component
@@ -27,9 +27,11 @@ class JwtTokenProvider(
         val expiresAt = now.plus(jwtProperties.accessTokenExpirationMinutes, ChronoUnit.MINUTES)
 
         return Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .subject(user.id.toString())
             .claim("email", user.email)
             .claim("role", user.role.name)
+            .claim("type", "access")
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiresAt))
             .signWith(key)
@@ -41,6 +43,7 @@ class JwtTokenProvider(
         val expiresAt = now.plus(jwtProperties.refreshTokenExpirationDays, ChronoUnit.DAYS)
 
         return Jwts.builder()
+            .id(UUID.randomUUID().toString())
             .subject(user.id.toString())
             .claim("type", "refresh")
             .issuedAt(Date.from(now))
@@ -50,8 +53,7 @@ class JwtTokenProvider(
     }
 
     fun extractUserId(token: String): UUID {
-        val claims = extractAllClaims(token)
-        return UUID.fromString(claims.subject)
+        return UUID.fromString(extractAllClaims(token).subject)
     }
 
     fun extractEmail(token: String): String? {
@@ -62,10 +64,26 @@ class JwtTokenProvider(
         return extractAllClaims(token)["role"] as? String
     }
 
+    fun extractType(token: String): String? {
+        return extractAllClaims(token)["type"] as? String
+    }
+
+    fun extractExpiration(token: String): Instant {
+        return extractAllClaims(token).expiration.toInstant()
+    }
+
     fun isTokenValid(token: String): Boolean {
         return try {
             val claims = extractAllClaims(token)
             claims.expiration.after(Date())
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    fun isRefreshToken(token: String): Boolean {
+        return try {
+            extractType(token) == "refresh" && isTokenValid(token)
         } catch (_: Exception) {
             false
         }

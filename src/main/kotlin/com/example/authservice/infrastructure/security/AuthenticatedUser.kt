@@ -18,4 +18,12 @@ data class AuthenticatedUser(
     override fun getPassword(): String = ""
 
     override fun getUsername(): String = email
+
+    override fun isAccountNonExpired(): Boolean = true
+
+    override fun isAccountNonLocked(): Boolean = true
+
+    override fun isCredentialsNonExpired(): Boolean = true
+
+    override fun isEnabled(): Boolean = true
 }

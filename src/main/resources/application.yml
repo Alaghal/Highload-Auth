@@ -1,18 +1,17 @@
 spring:
-
+  application:
+    name: backend-auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/auth_db
-    username: auth_user
-    password: auth_password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auth_db}
+    username: ${SPRING_DATASOURCE_USERNAME:auth_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:auth_password}
 
   jpa:
     hibernate:
       ddl-auto: validate
-
     properties:
       hibernate:
         format_sql: true
-
     open-in-view: false
 
   flyway:
@@ -25,9 +24,32 @@ server:
 logging:
   level:
     org.hibernate.SQL: debug
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSX} %-5level [%X{traceId:-},%X{spanId:-},%X{requestId:-}] %logger{36} - %msg%n"
 
 app:
   jwt:
-    secret: "very-secret-key-change-me-in-real-project-very-secret-key"
-    access-token-expiration-minutes: 15
-    refresh-token-expiration-days: 7
+    secret: ${APP_JWT_SECRET:very-secret-key-change-me-in-real-project-very-secret-key}
+    access-token-expiration-minutes: ${APP_JWT_ACCESS_TOKEN_EXPIRATION_MINUTES:15}
+    refresh-token-expiration-days: ${APP_JWT_REFRESH_TOKEN_EXPIRATION_DAYS:7}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+management.tracing:
+  sampling:
+    probability: 1.0

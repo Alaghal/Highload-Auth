@@ -43,3 +43,14 @@ A production-style authentication and user management service built with Kotlin,
 ```bash
 docker compose up -d
 ./gradlew bootRun
+
+
+## Features
+
+- JWT authentication
+- Refresh token rotation
+- Token revocation and logout-all
+- PostgreSQL + Flyway migrations
+- Dockerized deployment
+- OpenAPI / Swagger UI
+- Integration tests with Testcontainers

@@ -8,10 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIntegrationTest {
 
@@ -28,12 +25,14 @@ abstract class AbstractIntegrationTest {
     }
 
     companion object {
-        @Container
-        @JvmStatic
         val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16")
             .withDatabaseName("test_auth_db")
             .withUsername("test_user")
             .withPassword("test_password")
+
+        init {
+            postgres.start()
+        }
 
         @JvmStatic
         @DynamicPropertySource
@@ -47,6 +46,8 @@ abstract class AbstractIntegrationTest {
             registry.add("management.tracing.sampling.probability") { "0" }
             registry.add("management.otlp.tracing.endpoint") { "http://localhost:4318" } // meaningless but avoids default
             registry.add("spring.jpa.properties.hibernate.connection.pool_size") { "10" }
+            registry.add("spring.datasource.hikari.maximum-pool-size") { "20" }
+            registry.add("spring.datasource.hikari.minimum-idle") { "5" }
         }
     }
 }

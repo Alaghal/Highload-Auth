@@ -84,6 +84,52 @@ class AuthFlowIntegrationTest : AbstractIntegrationTest() {
         assertThat(response.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
+    @Test
+    fun `should return unauthorized for login with incorrect password`() {
+        registerUser("wrong-pass@example.com", "StrongPass123")
+
+        val loginBody = """
+            {
+              "email": "wrong-pass@example.com",
+              "password": "WrongPassword123"
+            }
+        """.trimIndent()
+
+        val response = postJson("/api/v1/auth/login", loginBody)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.body).contains("INVALID_CREDENTIALS")
+    }
+
+    @Test
+    fun `should return conflict for registration with existing email`() {
+        registerUser("duplicate@example.com", "StrongPass123")
+
+        val registerBody = """
+            {
+              "email": "duplicate@example.com",
+              "password": "NewStrongPass123"
+            }
+        """.trimIndent()
+
+        val response = postJson("/api/v1/auth/register", registerBody)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.CONFLICT)
+        assertThat(response.body).contains("EMAIL_ALREADY_EXISTS")
+    }
+
+    @Test
+    fun `should return bad request for registration with weak password`() {
+        val registerBody = """
+            {
+              "email": "weak@example.com",
+              "password": "123"
+            }
+        """.trimIndent()
+
+        val response = postJson("/api/v1/auth/register", registerBody)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertThat(response.body).contains("VALIDATION_ERROR")
+    }
+
     private fun registerUser(email: String, password: String) {
         val requestBody = """
             {
@@ -100,11 +146,16 @@ class AuthFlowIntegrationTest : AbstractIntegrationTest() {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
-        return restTemplate.postForEntity(
+        val response = restTemplate.postForEntity(
             url(path),
             HttpEntity(body, headers),
             String::class.java
         )
+
+        if (!response.statusCode.is2xxSuccessful) {
+            println("[DEBUG_LOG] Request to $path failed with status ${response.statusCode}: ${response.body}")
+        }
+        return response
     }
 
     private fun url(path: String): String = "http://localhost:$port$path"

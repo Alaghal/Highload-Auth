@@ -20,7 +20,6 @@ class SecurityConfig(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
-            .httpBasic(Customizer.withDefaults())
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(jwtAuthenticationEntryPoint) }
             .authorizeHttpRequests { auth ->
@@ -33,7 +32,11 @@ class SecurityConfig(
                         "/api/v1/auth/logout",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/actuator/health",
+                        "/actuator/prometheus",
+                        "/actuator/metrics",
+                        "/actuator/metrics/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }

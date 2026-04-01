@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: backend-auth-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auth_db}
     username: ${SPRING_DATASOURCE_USERNAME:auth_user}
@@ -22,6 +24,8 @@ server:
 logging:
   level:
     org.hibernate.SQL: debug
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSX} %-5level [%X{traceId:-},%X{spanId:-},%X{requestId:-}] %logger{36} - %msg%n"
 
 app:
   jwt:
@@ -32,3 +36,20 @@ app:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+management.tracing:
+  sampling:
+    probability: 1.0

@@ -1,5 +1,9 @@
 package com.example.authservice
 
+import com.example.authservice.infrastructure.persistence.token.RefreshTokenRepository
+import com.example.authservice.infrastructure.persistence.user.UserRepository
+import org.junit.jupiter.api.BeforeEach
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -10,6 +14,18 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIntegrationTest {
+
+    @Autowired
+    protected lateinit var userRepository: UserRepository
+
+    @Autowired
+    protected lateinit var refreshTokenRepository: RefreshTokenRepository
+
+    @BeforeEach
+    fun setUp() {
+        refreshTokenRepository.deleteAll()
+        userRepository.deleteAll()
+    }
 
     companion object {
         @Container
@@ -28,6 +44,9 @@ abstract class AbstractIntegrationTest {
             registry.add("app.jwt.secret") { "test-secret-key-test-secret-key-test-secret-key-123456" }
             registry.add("app.jwt.access-token-expiration-minutes") { "15" }
             registry.add("app.jwt.refresh-token-expiration-days") { "7" }
+            registry.add("management.tracing.sampling.probability") { "0" }
+            registry.add("management.otlp.tracing.endpoint") { "http://localhost:4318" } // meaningless but avoids default
+            registry.add("spring.jpa.properties.hibernate.connection.pool_size") { "10" }
         }
     }
 }

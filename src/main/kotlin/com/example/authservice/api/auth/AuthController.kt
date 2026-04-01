@@ -10,6 +10,7 @@ import com.example.authservice.application.auth.AuthService
 import com.example.authservice.infrastructure.security.AuthenticatedUser
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -20,12 +21,17 @@ class AuthController(
     private val authService: AuthService
 ) {
 
+    private companion object {
+        private val log = LoggerFactory.getLogger(AuthController::class.java)
+    }
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     fun register(
         @Valid @RequestBody request: RegisterRequest,
         httpRequest: HttpServletRequest
     ): AuthResponse {
+        log.info("Register request received for email={}", request.email)
         return authService.register(request, httpRequest)
     }
 
@@ -34,6 +40,7 @@ class AuthController(
         @Valid @RequestBody request: LoginRequest,
         httpRequest: HttpServletRequest
     ): AuthResponse {
+        log.info("Login request received for email={}", request.email)
         return authService.login(request, httpRequest)
     }
 
@@ -42,6 +49,7 @@ class AuthController(
         @Valid @RequestBody request: RefreshRequest,
         httpRequest: HttpServletRequest
     ): AuthResponse {
+        log.info("Refresh token request received")
         return authService.refresh(request, httpRequest)
     }
 
@@ -49,6 +57,7 @@ class AuthController(
     fun logout(
         @Valid @RequestBody request: LogoutRequest
     ): MessageResponse {
+        log.info("Logout request received")
         return authService.logout(request)
     }
 
@@ -56,6 +65,7 @@ class AuthController(
     fun logoutAll(
         @AuthenticationPrincipal principal: AuthenticatedUser
     ): MessageResponse {
+        log.info("Logout-all request received for userId={}", principal.id)
         return authService.logoutAll(principal.id)
     }
 }

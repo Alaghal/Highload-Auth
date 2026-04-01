@@ -61,6 +61,19 @@ class RefreshFlowIntegrationTest : AbstractIntegrationTest() {
         assertThat(reuseResponse.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
     }
 
+    @Test
+    fun `should return unauthorized for invalid refresh token`() {
+        val refreshBody = """
+            {
+              "refreshToken": "invalid-token"
+            }
+        """.trimIndent()
+
+        val response = postJson("/api/v1/auth/refresh", refreshBody)
+        assertThat(response.statusCode).isEqualTo(HttpStatus.UNAUTHORIZED)
+        assertThat(response.body).contains("INVALID_REFRESH_TOKEN")
+    }
+
     private fun registerUser(email: String, password: String) {
         val body = """
             {
@@ -90,11 +103,16 @@ class RefreshFlowIntegrationTest : AbstractIntegrationTest() {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
 
-        return restTemplate.postForEntity(
+        val response = restTemplate.postForEntity(
             url(path),
             HttpEntity(body, headers),
             String::class.java
         )
+
+        if (!response.statusCode.is2xxSuccessful) {
+            println("[DEBUG_LOG] Request to $path failed with status ${response.statusCode}: ${response.body}")
+        }
+        return response
     }
 
     private fun url(path: String): String = "http://localhost:$port$path"
